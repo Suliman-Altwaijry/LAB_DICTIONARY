@@ -14,7 +14,7 @@ def read_text(prompt):
 
 def read_date():
     while True:
-        text = input("Date (YYYY-MM-DD, for example 1999-01-01): ").strip()
+        text = input("Date (YYYY-MM-DD, for example 2026-10-25): ").strip()
         try:
             if date.fromisoformat(text).isoformat() == text:
                 return text
@@ -35,10 +35,15 @@ def read_number(prompt, humidity=False):
               else "Enter a valid temperature, for example 25 or -3.5.")
 
 
-def add_weather():
-    print("\nAdd a weather record")
+def add_weather(update=False):
+    print("\nUpdate a weather record" if update else "\nAdd a weather record")
     city = read_text("City name: ").title()
     day = read_date()
+    # Challenge: update
+    if update and day not in weather.get(city, {}):
+        print(f"No record for {city} on {day}. Choose 1 to add it.")
+        return
+
     temperature = read_number("Temperature in Celsius: ")
     humidity = read_number("Humidity (0-100%): ", humidity=True)
     condition = read_text("Weather condition (e.g., sunny or rainy): ")
@@ -51,6 +56,23 @@ def add_weather():
         "condition": condition
     }
     print(f"{action} weather for {city} on {day}.")
+
+
+# Challenge: delete 
+def delete_weather():
+    print("\nDelete a weather record")
+    city = read_text("City name: ").title()
+    day = read_date()
+    if day not in weather.get(city, {}):
+        print(f"No record for {city} on {day}.")
+        return
+
+    
+    del weather[city][day]
+
+    if not weather[city]:
+        del weather[city]
+    print(f"Deleted weather for {city} on {day}.")
 
 
 def query_weather():
@@ -75,17 +97,24 @@ def main():
     print("Records are kept until you close the program.")
     print("Adding the same city and date updates its record.")
     while True:
-        print("\n1. Add weather\n2. Find weather by city\n3. Exit")
-        choice = input("Enter 1, 2, or 3: ").strip()
+        print("\n1. Add weather\n2. Find weather by city"
+              "\n3. Update weather\n4. Delete weather\n5. Exit")
+        choice = input("Enter a choice (1-5): ").strip()
         if choice == "1":
             add_weather()
         elif choice == "2":
             query_weather()
         elif choice == "3":
-            print("Thanks for using Weather Book. Goodbye!")
+            # Challenge: update 
+            add_weather(update=True)
+        elif choice == "4":
+            # Challenge: delete 
+            delete_weather()
+        elif choice == "5":
+            print("Goodbye😄")
             break
         else:
-            print("Please choose 1 to add, 2 to search, or 3 to exit.")
+            print("Please enter a number from 1 to 5.")
 
 
 if __name__ == "__main__":
